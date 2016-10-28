@@ -1,0 +1,10 @@
+#!/usr/bin/env ruby
+
+dir = "/usr/local"
+app = "netw"
+bin = "#{dir}/bin/#{app}"
+etc = "#{dir}/etc/#{app}"
+
+system "cp #{app} #{bin}"
+system "mkdir -p #{etc}"
+system "touch #{etc}/pass"

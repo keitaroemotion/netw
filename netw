@@ -1,0 +1,57 @@
+#!/usr/bin/env ruby
+#
+def turn_wifi(arg) 
+  if (['on', 'off'].include?(arg))
+    system "networksetup -setairportpower en0  #{arg} " 
+  else
+    abort 'ERROR: on or off'	   
+  end
+end
+
+$password_file =  "/usr/local/etc/netw/pass"
+
+def get_input(message)
+  print message
+  $stdin.gets.chomp
+end
+
+def add_pass_to_file()
+  key   = get_input "key: "
+  pass = get_input "pass: "
+  File.open($password_file, 'a'){ |file|
+    file.write "#{key} #{pass}\n"
+  } 
+end
+
+def read_file(networks=[])
+  File.open($password_file).each do |line|
+    tokens = line.split(' ')	  
+    networks.push [tokens[0].chomp, tokens[1].chomp]
+  end
+  networks	   
+end
+
+def init_network()
+  turn_wifi 'on'	
+  sleep 2 
+end
+#
+case ARGV[0]
+when "passwd"
+  add_pass_to_file	
+when "wifi"
+  turn_wifi ARGV[1]	
+when "call"
+  init_network 
+  networks = read_file
+  networks.each_with_index do |item, index|
+    puts "[#{index}] #{item[0]}"	   
+  end
+  print "which one?: "
+  input = $stdin.gets.chomp.to_i
+  system "networksetup -setairportnetwork en0 #{networks[input][0]} #{networks[input][1]}"    	
+else
+  puts "[wifi] [on/off]"
+  puts "[call] "
+  puts "[passwd] "
+end
